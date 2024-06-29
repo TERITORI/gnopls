@@ -6,6 +6,7 @@ require (
 	github.com/gnolang/gno v0.0.0-20240118150545-7aa81d138701
 	github.com/google/go-github v17.0.0+incompatible
 	github.com/orcaman/concurrent-map/v2 v2.0.1
+	github.com/samber/slog-multi v1.1.0
 	github.com/spf13/cobra v1.5.0
 	go.lsp.dev/jsonrpc2 v0.10.0
 	go.lsp.dev/pkg v0.0.0-20210717090340-384b27a52fb2
@@ -47,6 +48,7 @@ require (
 	github.com/pelletier/go-toml v1.9.5 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rs/cors v1.10.1 // indirect
+	github.com/samber/lo v1.38.1 // indirect
 	github.com/segmentio/asm v1.1.3 // indirect
 	github.com/segmentio/encoding v0.3.4 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
@@ -56,6 +58,7 @@ require (
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/zap v1.24.0 // indirect
 	golang.org/x/crypto v0.15.0 // indirect
+	golang.org/x/exp v0.0.0-20220303212507-bbda1eaf7a17 // indirect
 	golang.org/x/net v0.17.0 // indirect
 	golang.org/x/sys v0.14.0 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
