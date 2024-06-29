@@ -7,10 +7,12 @@ import (
 	"go/parser"
 	"go/token"
 	"go/types"
+	"io/fs"
 	"log/slog"
 	"math"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -38,6 +40,7 @@ type PackageGetter interface {
 // PackageInfo if found.
 // Note: it doesn't work for relative path
 func GetPackageInfo(path string) (*PackageInfo, error) {
+	//slog.Info("getting package info for", slog.String("path", path))
 	// if not absolute, assume its import path
 	if !filepath.IsAbs(path) {
 		if env.GlobalEnv.GNOROOT == "" {
@@ -45,7 +48,47 @@ func GetPackageInfo(path string) (*PackageInfo, error) {
 			// `examples` and `stdlibs`
 			return nil, errors.New("GNOROOT not set")
 		}
-		if strings.HasPrefix(path, "gno.land/") { // look in `examples`
+		if strings.HasPrefix(path, "gno.land/") { // look in gno `examples` and extra dirs
+			// find in extra dirs
+			srcPathsStr, ok := os.LookupEnv("GNOSRCPATHS")
+			//slog.Info("extra source paths", slog.String("env", srcPathsStr))
+			if ok {
+				srcPaths := strings.Split(srcPathsStr, ",")
+				for _, srcPath := range srcPaths {
+					modFiles := []string{}
+					if err := filepath.Walk(srcPath, func(path string, info fs.FileInfo, err error) error {
+						if !strings.HasSuffix(path, "/gno.mod") {
+							return nil
+						}
+						//slog.Info("found mod file", slog.String("path", path))
+						modFiles = append(modFiles, path)
+						return nil
+					}); err != nil {
+						return nil, err
+					}
+
+					for _, modFile := range modFiles {
+						modData, err := os.ReadFile(modFile)
+						if err != nil {
+							continue
+						}
+						re := regexp.MustCompile(`^module (.+)`)
+						res := re.FindSubmatch(modData)
+						if len(res) != 2 {
+							continue
+						}
+						pkgDir := strings.TrimSuffix(modFile, "/gno.mod")
+						pkgPath := string(res[1])
+						//slog.Info("found package", slog.String("path", pkgPath), slog.String("dir", pkgDir))
+						if pkgPath != path {
+							continue
+						}
+						//slog.Info("found correct package")
+						return getPackageInfo(pkgDir)
+					}
+				}
+			}
+
 			path = filepath.Join(env.GlobalEnv.GNOROOT, "examples", path)
 		} else { // look into `stdlibs`
 			path = filepath.Join(env.GlobalEnv.GNOROOT, "gnovm", "stdlibs", path)

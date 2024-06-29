@@ -31,6 +31,7 @@ func BuildServerHandler(conn jsonrpc2.Conn, e *env.Env) jsonrpc2.Handler {
 	if e.GNOROOT != "" {
 		dirs = append(dirs, filepath.Join(e.GNOROOT, "examples"))
 		dirs = append(dirs, filepath.Join(e.GNOROOT, "gnovm/stdlibs"))
+		dirs = append(dirs, os.Getenv("GNOSRCPATHS"))
 	}
 	server := &server{
 		conn: conn,
